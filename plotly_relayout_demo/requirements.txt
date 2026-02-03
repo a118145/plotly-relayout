@@ -1,2 +1,4 @@
-
-reflex==0.8.26reflex-plotly-relayout
+reflex==0.8.26
+reflex-plotly-relayout
+plotly==6.5.0
+numpy==2.4.0
