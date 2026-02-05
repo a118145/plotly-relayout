@@ -1,8 +1,6 @@
 
 """Welcome to Reflex! This file showcases the custom component in a basic app."""
 
-from rxconfig import config
-
 import reflex as rx
 import plotly.graph_objects as go
 import numpy as np
@@ -13,6 +11,8 @@ from reflex_plotly_relayout import plotly_relayout
 class State(rx.State):
     """The app state."""
     fig: go.Figure = go.Figure()
+
+    relayout_data: str = ""
 
     RAND_SIZE: int = 10
 
@@ -37,8 +37,8 @@ class State(rx.State):
             autosize=True,
             margin=dict(l=0, r=0, t=0, b=0),
             font=dict(size=25, family='Inter, ui-sans-serif, system-ui'),
+            uirevision = 'zoom',
         )
-        # self.fig = fig
 
     @rx.event
     def plotly_click_event(self, point: list):
@@ -55,50 +55,80 @@ class State(rx.State):
         print(point)
 
     @rx.event
-    def plotly_relayout_relayout_event(self, obj):
+    def plotly_relayout_relayout_event(self, obj: dict):
         print("Custom relayout event")
-        print(obj)
-
+        self.relayout_data = str(obj)
 
 
 
 def index() -> rx.Component:
     return rx.center(
-        # rx.theme_panel(),
         rx.vstack(
             rx.heading("Welcome to the Plotly relayout demo!", size="9"),
             rx.hstack(
                 rx.card(
                     rx.vstack(
-                        rx.code(
-                            "Default rx.plotly",
-                            size = '5',
+                        rx.center(
+                            rx.code(
+                                "Default rx.plotly",
+                                size = '5',
+                            ),
+                            width = "100%",
                         ),
                         rx.plotly(
                             data = State.plotly_fig,
                             on_click = State.plotly_click_event,
                             on_relayout = State.plotly_relayout_event,
                         ),
-                        align = 'center',
+                        rx.text(
+                            "The default on_relayout event does not pass through any event data as explained in the ",
+                            rx.link(
+                            "Plotly documentation", 
+                            href="https://plotly.com/javascript/plotlyjs-events/#update-data",
+                            external = True,
+                            ),
+                            '.'
+                        ),
+                        
+                        align = 'start',
                     ),
                     size = '4',
+                    width = "50%",
                 ),
                 rx.card(
                     rx.vstack(
-                        rx.code(
-                            "Custom plotly_relayout",
-                            size = '5',
+                        rx.center(
+                            rx.code(
+                                "Custom plotly_relayout",
+                                size = '5',
+                            ),
+                            width = "100%",
                         ),
-                        # rx.plotly(
                         plotly_relayout(
                             data = State.plotly_fig,
                             on_click = State.plotly_relayout_click_event,
-                            # on_click = State.plotly_click_event,
                             on_relayout = State.plotly_relayout_relayout_event,
                         ),
-                        align = 'center',
+                        rx.text(
+                            "The custom component the raw event data as dict. Zoom to try out.",
+                        ),
+                        rx.text(
+                            f"on_relayout data: {State.relayout_data}",
+                        ),
+                        rx.text(
+                            'If it does not work, start reflex in production mode. There might still be an issue, cf. ',
+                            rx.link(
+                            "Github issue", 
+                            href="https://github.com/reflex-dev/reflex/issues/4532#issuecomment-3849255924",
+                            external = True,
+                            ),
+                            '.'
+                        ),
+
+                        align = 'start',
                     ),
                     size = '4',
+                    width = "50%",
                 ),
             ),
             align="center",
